@@ -3,7 +3,7 @@
 
 #define LED_RED D2
 #define LED_GREEN D1
-#define BUTTON D5
+#define SERVO D4
 
 Servo servo;
 
@@ -69,7 +69,7 @@ void setup() {
 
   client.enableLastWillMessage("USprojekat/Konekcija", "Device Offline", true);  
 
-  servo.attach(D4);               // Set the pin for the servo
+  servo.attach(SERVO);            // Set the pin for the servo
   servo.write(0);                 // Set the servo to 0 position
   pinMode(LED_RED, OUTPUT);       // Set the pin for STOP LED
   pinMode(LED_GREEN, OUTPUT);     // Set the pin for GO LED
