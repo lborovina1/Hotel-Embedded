@@ -9,8 +9,8 @@
 Servo servo;
 
 EspMQTTClient client(
-  "zy524f",
-  "alibaba19c",
+  "Asterix_WLAN",
+  "123A456d78",
   "broker.hivemq.com",  // MQTT Broker server ip
   "TestClient",     // Client name that uniquely identify your device
   1883              // The MQTT port, default to 1883. this line can be omitted
@@ -20,14 +20,48 @@ EspMQTTClient client(
 // WARNING : YOU MUST IMPLEMENT IT IF YOU USE EspMQTTClient
 void onConnectionEstablished()
 {
-  char* WiFiConnectedMessage[] = "WiFi Connected.\n";
+  client.publish("USprojekat/Konekcija", "Device Online.", true);
+  client.publish("USprojekat/ZelenoSvjetlo", "0");
+  client.publish("USprojekat/CrvenoSvjetlo", "1");
+  
 
-  Serial.println(WiFiConnectedMessage);
+
   // Subscribe to "mytopic/test" and display received message to Serial
   client.subscribe("USprojekat/Servo", [](const String & payload) {
     Serial.println(payload);
+
+    if(payload == "1") {
+      Serial.println("Podizem rampu...");
+      client.publish("USprojekat/Info", "Podizem rampu...", true);
+      client.publish("USprojekat/ZelenoSvjetlo", "1");
+      client.publish("USprojekat/CrvenoSvjetlo", "0");
+      digitalWrite(LED_RED, LOW);
+      digitalWrite(LED_GREEN, HIGH);
+      int pos = 0;
+      for(pos; pos <= 180; pos += 3) 
+        servo.write(pos);
+      //Wait for car to pass
+      Serial.println("Rampa podignuta!");
+      client.publish("USprojekat/Info", "Rampa podignuta!", true);
+      delay(5000);
+      //Switch LEDs back from GO to STOP
+      client.publish("USprojekat/ZelenoSvjetlo", "0");
+      client.publish("USprojekat/CrvenoSvjetlo", "1");
+      digitalWrite(LED_RED, HIGH);
+      digitalWrite(LED_GREEN, LOW);
+      //Lower the ramp
+      Serial.println("Spustam rampu...");
+      client.publish("USprojekat/Info", "Spustam rampu...", true);
+      for(pos = 180; pos >= 0; pos -= 2) 
+        servo.write(pos); 
+      
+      Serial.println("Rampa spustena.");
+      client.publish("USprojekat/Info", "Rampa spustena.", true);
+      client.publish("USprojekat/Servo", "0");    
+    }
   });
 
+  /*
   // Subscribe to "mytopic/wildcardtest/#" and display received message to Serial
   client.subscribe("USprojekat/wildcardtest/#", [](const String & topic, const String & payload) {
     Serial.println("(From wildcard) topic: " + topic + ", payload: " + payload);
@@ -40,8 +74,8 @@ void onConnectionEstablished()
   client.executeDelayed(5 * 1000, []() {
     client.publish("USprojekat/wildcardtest/test123", "This is a message sent 5 seconds later");
   });
+  */
 }
-
 
 void setup() {
 
@@ -65,7 +99,7 @@ void setup() {
 
 void loop() {
   client.loop();
-
+  delay(100);
   /*
 
   if(digitalRead(BUTTON) == HIGH)
@@ -92,7 +126,10 @@ void loop() {
       //Update debouncing time
       previousButtonTime = buttonTime;
     }
-    */
+    
+
+
+    //////////////////////////////////////////////////////////
     digitalWrite(LED_RED, LOW);
     digitalWrite(LED_GREEN, HIGH);
     int pos = 0;
@@ -110,7 +147,9 @@ void loop() {
       digitalWrite(LED_GREEN, LOW);
 
       delay(2000);
+      //////////////////////////////////////////////////////////
 
+      */
 
 
 }
