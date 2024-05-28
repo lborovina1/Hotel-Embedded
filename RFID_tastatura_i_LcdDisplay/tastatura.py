@@ -13,8 +13,8 @@ class Tastatura:
                         ['7', '8', '9', 'C'],
                         ['*', '0', '#', 'D']]
 
-        self.rows = [Pin(i, Pin.OUT) for i in [26, 22, 21, 20]]
-        self.cols = [Pin(i, Pin.IN, Pin.PULL_DOWN) for i in [19, 18, 17, 16]]
+        self.rows = [Pin(i, Pin.OUT) for i in [16, 17, 18, 19]]
+        self.cols = [Pin(i, Pin.IN, Pin.PULL_DOWN) for i in [20, 21, 22, 26]]
        
         self.string = ""
         self.cntr = 0
@@ -30,9 +30,11 @@ class Tastatura:
 
         self.i2c = I2C(1, sda=Pin(14), scl=Pin(15), freq=400000)
         self.lcd = I2cLcd(self.i2c, I2C_ADDR, I2C_NUM_ROWS, I2C_NUM_COLS)
+        self.lcd.hal_backlight_on()
            
-    def colPress(self):
+    def colPress(self, Pin):
         currentCol = 0
+        cNotPressed = True
         for i in range(4):
             if self.cols[i].value() == 1: # cita broj pritisnute kolone
                 currentCol = i
@@ -44,6 +46,7 @@ class Tastatura:
            
         if currentCol == 3: # provjerava 4. kolonu, tj. ako je uneseno A, B, C ili D
             if self.currentRow == 2: # pritisnuto C
+                cNotPressed = False
                 self.cntr -= 1
                 self.string = self.string[:-1]
                 self.lcd.clear()
@@ -56,17 +59,18 @@ class Tastatura:
             elif currentCol == 2 and len(self.string) == 4: # pritisnut #
                 self.potvrdjeno = True
                 return
-               
-        self.string += self.matrica[self.currentRow][currentCol]
+            
+        if cNotPressed == True:
+            self.string += self.matrica[self.currentRow][currentCol]
        
-        self.lcd.clear()
-        self.lcd.putstr(self.string)
-       
-        self.cntr = (self.cntr + 1) % 4
-        if self.cntr == 0:
-            self.string = ""
+            self.lcd.clear()
+            self.lcd.putstr(self.string)
+        
+            self.cntr = (self.cntr + 1) % 4
+            if self.cntr == 0:
+                self.string = ""
    
-    def rowFun(t):
+    def rowFun(self, Pin):
         self.rows[self.currentRow].value(0)
         self.currentRow = (self.currentRow + 1) % 4
         self.rows[self.currentRow].value(1)
@@ -75,25 +79,25 @@ class Tastatura:
         tim = Timer(period = 50, mode = Timer.PERIODIC, callback = self.rowFun)
        
        
-class TastController:
+class TastController():
     def __init__(self):
         self.tastatura = Tastatura()
         self.tastatura.ocitaj()
 
     def getUnos(self):
-        self.lcd.clear()
-        self.lcd.putstr("Unesite broj \n sobe:")
+        self.tastatura.lcd.clear()
+        self.tastatura.lcd.putstr("Unesite broj \n sobe:")
         while True:
-            if self.potvrdjeno == True:
-                self.potvrdjeno = False
-                self.cntr = 0
+            if self.tastatura.potvrdjeno == True:
+                self.tastatura.potvrdjeno = False
+                self.tastatura.cntr = 0
                
-                self.lcd.clear()
-                self.lcd.putstr("Unijeli ste: \n"+ self.string)
+                self.tastatura.lcd.clear()
+                self.tastatura.lcd.putstr("Unijeli ste: \n"+ self.tastatura.string)
                
                 result = self.tastatura.string
                 self.tastatura.string = ""
                 sleep(2)
-                self.lcd.clear()
-                self.lcd.putstr("Prisloniti\n karticu...")
+                self.tastatura.lcd.clear()
+                self.tastatura.lcd.putstr("Prisloniti\n karticu...")
                 return result  

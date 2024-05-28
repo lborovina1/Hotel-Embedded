@@ -33,7 +33,8 @@ karticeISobe = {
 }
  
 while True:
-    if button.value() == 1: # konfiguracija na recepciji
+    if button.value(): # konfiguracija na recepciji
+        while button.value(): pass
         soba = tastatura.getUnos()
        
         reader1.init()
