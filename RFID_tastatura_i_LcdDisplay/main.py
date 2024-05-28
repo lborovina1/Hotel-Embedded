@@ -52,13 +52,12 @@ while True:
    
         if stat2 == reader2.OK:
             (stat, uid) = reader2.SelectTagSN()
-        if stat == reader2.OK:
-            card = int.from_bytes(bytes(uid),"little",False)
-            if karticeISobe["1000"] == card:
-                red.value(0)
-                green.value(1)
-            else:
-                red.value(1)
-                green.value(0)
+            if stat == reader2.OK:
+                card = int.from_bytes(bytes(uid),"little",False)
+                if karticeISobe["1000"] == card:
+                    red.value(0)
+                    green.value(1)
+                else:
+                    red.value(1)
+                    green.value(0)
     sleep(0.1)
-
