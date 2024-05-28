@@ -35,24 +35,24 @@ karticeISobe = {
 while True:
     if button.value() == 1: # konfiguracija na recepciji
         soba = tastatura.getUnos()
-        
+       
         reader1.init()
-        (stat1, tag_type1) = reader1.request(reader.REQIDL)
-    
-        if stat1 == reader.OK: 
-            (stat, uid) = reader.SelectTagSN()
-            if stat == reader.OK:
+        (stat1, tag_type1) = reader1.request(reader1.REQIDL)
+   
+        if stat1 == reader1.OK:
+            (stat, uid) = reader1.SelectTagSN()
+            if stat == reader1.OK:
                 card = int.from_bytes(bytes(uid),"little",False)
-                
+               
                 karticeISobe[soba] = card
 
     else: # ulazak u sobu
         reader2.init()
-        (stat2, tag_type2) = reader2.request(reader.REQIDL)
-    
-        if stat2 == reader.OK: 
-            (stat, uid) = reader.SelectTagSN()
-        if stat == reader.OK:
+        (stat2, tag_type2) = reader2.request(reader2.REQIDL)
+   
+        if stat2 == reader2.OK:
+            (stat, uid) = reader2.SelectTagSN()
+        if stat == reader2.OK:
             card = int.from_bytes(bytes(uid),"little",False)
             if karticeISobe["1000"] == card:
                 red.value(0)
@@ -61,3 +61,4 @@ while True:
                 red.value(1)
                 green.value(0)
     sleep(0.1)
+
