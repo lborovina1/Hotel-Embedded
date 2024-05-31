@@ -80,6 +80,8 @@ while True:
                     sleep(1)
                     lcd.clear()
                     lcd.putstr("Uklonite\nkarticu!")
+                    sleep(1)
+                    lcd.clear()
 
     else:
         reader2.init()
