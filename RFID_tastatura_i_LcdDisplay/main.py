@@ -19,6 +19,8 @@ button = Pin(0, Pin.IN)
 
 red = Pin(7, Pin.OUT)
 green = Pin(6, Pin.OUT)
+red.value(0)
+green.value(0)
 
 i2c = I2C(1, sda=Pin(14), scl=Pin(15), freq=400000)
 lcd = I2cLcd(i2c, I2C_ADDR, I2C_NUM_ROWS, I2C_NUM_COLS)
@@ -60,10 +62,10 @@ while True:
             lcd.putstr("Unijeli ste: \n" + soba)  
             sleep(2)
             lcd.clear()
-            lcd.putstr("Prislonite\nkarticu!: \n") 
+            lcd.putstr("Prislonite\nkarticu: \n") 
             reader1.init()
             stat1 = False
-            #while stat1 == False:
+
             sleep(2)
             lcd.clear()
             (stat1, tag_type1) = reader1.request(reader1.REQIDL)
@@ -74,7 +76,10 @@ while True:
                     card = int.from_bytes(bytes(uid),"little",False) # type: ignore
                     karticeISobe[int(soba)] = card 
                     print(karticeISobe[int(soba)])
-            lcd.putstr("Povezano!")
+                    lcd.putstr("Povezano!")
+                    sleep(1)
+                    lcd.clear()
+                    lcd.putstr("Uklonite\nkarticu!")
 
     else:
         reader2.init()
