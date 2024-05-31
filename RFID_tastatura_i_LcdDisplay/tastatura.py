@@ -17,10 +17,12 @@ class Tastatura:
         self.cols = [Pin(i, Pin.IN, Pin.PULL_DOWN) for i in [20, 21, 22, 26]]
        
         self.string = ""
-        self.cntr = 0
         self.currentRow = 0
+        self.currentCol= 0
         self.debounce = ticks_ms()
         self.potvrdjeno = False
+        self.pogresanUnos = False
+        self.timer = None
 
         for row in self.rows:
             row.value(0)
@@ -33,42 +35,49 @@ class Tastatura:
         self.lcd.hal_backlight_on()
            
     def colPress(self, Pin):
-        currentCol = 0
-        cNotPressed = True
-        for i in range(4):
-            if self.cols[i].value() == 1: # cita broj pritisnute kolone
-                currentCol = i
-                break
-        if ticks_diff(ticks_ms(), self.debounce) < 200: # debouncing
+        if ticks_diff(ticks_ms(), self.debounce) < 350: # debouncing
             return
         else:
             self.debounce = ticks_ms()
+
+        for i in range(4):
+            if self.cols[i].value() == 1: # cita broj pritisnute kolone
+                self.currentCol = i
+                break
            
-        if currentCol == 3: # provjerava 4. kolonu, tj. ako je uneseno A, B, C ili D
+        if len(self.string) == 4 and self.matrica[self.currentRow][self.currentCol] != 'C' and self.matrica[self.currentRow][self.currentCol] != '#':
+            self.timer.deinit()
+            self.pogresanUnos = True
+            return
+           
+        elif self.currentCol == 3: # provjerava 4. kolonu, tj. ako je uneseno A, B, C ili D
             if self.currentRow == 2: # pritisnuto C
-                cNotPressed = False
-                self.cntr -= 1
                 self.string = self.string[:-1]
+                print(self.string)
                 self.lcd.clear()
                 self.lcd.putstr(self.string)
+                return
+               
             else: # pritisnuto A, B ili D
+                self.timer.deinit()
+                self.pogresanUnos = True
                 return
-        if self.currentRow == 3:
-            if currentCol == 0: # pritisnuta *
+           
+        elif self.currentRow == 3:
+            if self.currentCol == 0 or (self.currentCol == 2 and len(self.string) != 4): # pritisnuta * ili # kad ne treba
+                self.timer.deinit()
+                self.pogresanUnos = True
                 return
-            elif currentCol == 2 and len(self.string) == 4: # pritisnut #
+            elif self.currentCol == 2 and len(self.string) == 4: # pritisnut #
+                self.timer.deinit()
                 self.potvrdjeno = True
                 return
-            
-        if cNotPressed == True:
-            self.string += self.matrica[self.currentRow][currentCol]
-       
+         
+        if not self.pogresanUnos:
+            self.string += self.matrica[self.currentRow][self.currentCol]
+            print(self.string)
             self.lcd.clear()
             self.lcd.putstr(self.string)
-        
-            self.cntr = (self.cntr + 1) % 4
-            if self.cntr == 0:
-                self.string = ""
    
     def rowFun(self, Pin):
         self.rows[self.currentRow].value(0)
@@ -76,28 +85,30 @@ class Tastatura:
         self.rows[self.currentRow].value(1)
 
     def ocitaj(self):
-        tim = Timer(period = 50, mode = Timer.PERIODIC, callback = self.rowFun)
+        if self.timer == None:
+            self.timer = Timer(period = 50, mode = Timer.PERIODIC, callback = self.rowFun)
+        else:
+            self.timer.init(period = 50, mode = Timer.PERIODIC, callback = self.rowFun)
        
-       
-class TastController():
+class TastController:
     def __init__(self):
         self.tastatura = Tastatura()
-        self.tastatura.ocitaj()
 
     def getUnos(self):
+
         self.tastatura.lcd.clear()
         self.tastatura.lcd.putstr("Unesite broj \n sobe:")
+        
+        self.tastatura.ocitaj()
+        self.string = ""
+        self.tastatura.pogresanUnos = False
+        self.tastatura.potvrdjeno = False
         while True:
-            if self.tastatura.potvrdjeno == True:
-                self.tastatura.potvrdjeno = False
-                self.tastatura.cntr = 0
+            if self.tastatura.pogresanUnos:
+                self.tastatura.string = ""
+                return -1
                
-                self.tastatura.lcd.clear()
-                self.tastatura.lcd.putstr("Unijeli ste: \n"+ self.tastatura.string)
-               
+            if self.tastatura.potvrdjeno:
                 result = self.tastatura.string
                 self.tastatura.string = ""
-                sleep(2)
-                self.tastatura.lcd.clear()
-                self.tastatura.lcd.putstr("Prisloniti\n karticu...")
-                return result  
+                return result 
