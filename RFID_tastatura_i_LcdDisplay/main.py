@@ -94,7 +94,11 @@ while True:
                 if karticeISobe[1000] == card:
                     red.value(0)
                     green.value(1)
+                    sleep(2)
+                    green.value(0)
                 else:
                     red.value(1)
                     green.value(0)
+                    sleep(2)
+                    red.value(0)
     sleep(0.1)
