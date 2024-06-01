@@ -49,6 +49,8 @@ def unosSobe():
     soba = tastatura.getUnos()
 
 while True:
+    red(0)
+    green(0)
     if button.value():
         unosSobe()
         print(soba) 

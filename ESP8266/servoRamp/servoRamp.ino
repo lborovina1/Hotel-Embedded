@@ -17,9 +17,12 @@ EspMQTTClient client(
 
 // This function is called once everything is connected (Wifi and MQTT)
 void onConnectionEstablished() {
+  LEDSignal();
+  Serial.println("WiFi Connected");
   client.publish("USprojekat/Konekcija", "Device Online", true);
   client.publish("USprojekat/ZelenoSvjetlo", "0");
   client.publish("USprojekat/CrvenoSvjetlo", "1");
+  client.publish("USprojekat/Servo", "0");
   
   // Subscribe to "USprojekat/Servo" to work with all the functionalities
   client.subscribe("USprojekat/Servo", 
@@ -37,7 +40,7 @@ void onConnectionEstablished() {
         Serial.println("Podizem rampu...");
         client.publish("USprojekat/Info", "Podizem rampu...");
         int pos = 0;
-        for(pos; pos <= 180; pos += 3) 
+        for(pos; pos <= 180; pos += 5) 
           servo.write(pos);
 
         // Wait 5s for the car to pass
@@ -54,7 +57,7 @@ void onConnectionEstablished() {
         // Lower the ramp
         Serial.println("Spustam rampu...");
         client.publish("USprojekat/Info", "Spustam rampu...");
-        for(pos = 180; pos >= 0; pos -= 2) 
+        for(pos = 180; pos >= 0; pos -= 3) 
           servo.write(pos); 
         
         Serial.println("Rampa spustena.");
@@ -64,10 +67,26 @@ void onConnectionEstablished() {
     });
 }
 
+void LEDSignal() {
+  digitalWrite(LED_BUILTIN, HIGH);  
+  delay(100);                      
+  digitalWrite(LED_BUILTIN, LOW);   
+  delay(100);   
+  digitalWrite(LED_BUILTIN, HIGH);  
+  delay(100);                      
+  digitalWrite(LED_BUILTIN, LOW);   
+  delay(100);   
+  digitalWrite(LED_BUILTIN, HIGH);  
+  delay(100);                      
+  digitalWrite(LED_BUILTIN, LOW);   
+  delay(100);   
+}
+
 void setup() {
   Serial.begin(115200);
-
+  
   client.enableLastWillMessage("USprojekat/Konekcija", "Device Offline", true);  
+  client.enableMQTTPersistence();
 
   servo.attach(SERVO);            // Set the pin for the servo
   servo.write(0);                 // Set the servo to 0 position
