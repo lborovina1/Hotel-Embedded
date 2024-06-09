@@ -11,11 +11,11 @@ EspMQTTClient client(
   "Asterix_WLAN",       // WiFi SSID
   "123A456d78",         // WiFi Password
   "broker.hivemq.com",  // MQTT Broker server ip
-  "TestClient",         // Client name that uniquely identify your device
-  1883                  // The MQTT port, default to 1883. this line can be omitted
+  "TestClient",         // Klijentsko ime, identifikator uredjaja 
+  1883                  // MQTT port, default-no 1883
 );
 
-// This function is called once everything is connected (Wifi and MQTT)
+// Ova funkcija se poziva kada je konekcija uspostavljena (Wifi i MQTT)
 void onConnectionEstablished() {
   LEDSignal();
   Serial.println("WiFi Connected");
@@ -24,40 +24,40 @@ void onConnectionEstablished() {
   client.publish("USprojekat/CrvenoSvjetlo", "1");
   client.publish("USprojekat/Servo", "0");
   
-  // Subscribe to "USprojekat/Servo" to work with all the functionalities
+  // Subscribe na temu "USprojekat/Servo" 
   client.subscribe("USprojekat/Servo", 
     [](const String & payload) {
       Serial.println(payload);
 
       if(payload == "1") {
-        // Set LEDs to GO
+        // Pali se zelena LED za signalizaciju dizanja rampe 
         client.publish("USprojekat/ZelenoSvjetlo", "1");
         client.publish("USprojekat/CrvenoSvjetlo", "0");
         digitalWrite(LED_RED, LOW);
         digitalWrite(LED_GREEN, HIGH);
 
-        // Raise the ramp
+        // Rampa se dize
         Serial.println("Podizem rampu...");
         client.publish("USprojekat/Info", "Podizem rampu...");
         int pos = 0;
-        for(pos; pos <= 180; pos += 5) 
+        for(pos; pos <= 180; pos += 5) // Rampa se postepeno dize, povecanjem ugla otklona
           servo.write(pos);
 
-        // Wait 5s for the car to pass
+        // Cekanje 5 sekundi da automobil prodje 
         Serial.println("Rampa podignuta!");
         client.publish("USprojekat/Info", "Rampa podignuta!");
         delay(5000);
 
-        // Set LEDs to GO
+        // Pali se crvena LED za signalizaciju spustanja rampe
         client.publish("USprojekat/ZelenoSvjetlo", "0");
         client.publish("USprojekat/CrvenoSvjetlo", "1");
         digitalWrite(LED_RED, HIGH);
         digitalWrite(LED_GREEN, LOW);
 
-        // Lower the ramp
+        // Rampa se spusta
         Serial.println("Spustam rampu...");
         client.publish("USprojekat/Info", "Spustam rampu...");
-        for(pos = 180; pos >= 0; pos -= 3) 
+        for(pos = 180; pos >= 0; pos -= 3)  // Rampa se postepeno spusta, smanjenjem ugla otklona
           servo.write(pos); 
         
         Serial.println("Rampa spustena.");
@@ -67,6 +67,7 @@ void onConnectionEstablished() {
     });
 }
 
+// Funkcija koja se koristi kao signalizator uspostavljene konekcije (blicanje ugradjene LED)
 void LEDSignal() {
   digitalWrite(LED_BUILTIN, HIGH);  
   delay(100);                      
@@ -88,18 +89,18 @@ void setup() {
   client.enableLastWillMessage("USprojekat/Konekcija", "Device Offline", true);  
   client.enableMQTTPersistence();
 
-  servo.attach(SERVO);            // Set the pin for the servo
-  servo.write(0);                 // Set the servo to 0 position
-  pinMode(LED_RED, OUTPUT);       // Set the pin for STOP LED
-  pinMode(LED_GREEN, OUTPUT);     // Set the pin for GO LED
+  servo.attach(SERVO);            // Povezivanje motora sa mikrokontrolerom preko pin-a SERVO
+  servo.write(0);                 // Postavljanje inicijalne pozicije rampe
+  pinMode(LED_RED, OUTPUT);       // Inicijalizacija crvene LED 
+  pinMode(LED_GREEN, OUTPUT);     // Inicijalizacija zelene LED
 
-  // Set LEDs to STOP position on start
+  // Na pocetku crvena LED upaljena, a zelena ugasena zato sto je rampa spustena
   digitalWrite(LED_RED, HIGH);
   digitalWrite(LED_GREEN, LOW);
 }
 
 void loop() {
-  // Scan for new messages every 250ms
+  // Provjerava se prijem nove poruke svakih 250ms
   client.loop();
   delay(250);
 }
