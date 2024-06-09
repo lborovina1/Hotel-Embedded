@@ -18,9 +18,9 @@ class Tastatura:
         self.rows = [Pin(i, Pin.OUT) for i in [16, 17, 18, 19]]
         self.cols = [Pin(i, Pin.IN, Pin.PULL_DOWN) for i in [20, 21, 22, 26]]
        
-        self.string = ""		# Globalna varijabla u koju se pohranjuje unos 
-        self.currentRow = 0		# Globalna varijabla za trenutno aktivni red
-        self.currentCol= 0		# Globalna varijabla za trenutno pritisnutu kolonu
+        self.string = ""		# Varijabla u koju se pohranjuje unos 
+        self.currentRow = 0		# Varijabla za trenutno aktivni red
+        self.currentCol= 0		# Varijabla za trenutno pritisnutu kolonu
         self.debounce = ticks_ms()
         self.potvrdjeno = False
         self.pogresanUnos = False
