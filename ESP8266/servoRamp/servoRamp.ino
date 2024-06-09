@@ -43,10 +43,10 @@ void onConnectionEstablished() {
         for(pos; pos <= 180; pos += 5) // Rampa se postepeno dize, povecanjem ugla otklona
           servo.write(pos);
 
-        // Cekanje 5 sekundi da automobil prodje 
+        // Cekanje 10 sekundi da automobil prodje 
         Serial.println("Rampa podignuta!");
         client.publish("USprojekat/Info", "Rampa podignuta!");
-        delay(5000);
+        delay(10000);
 
         // Pali se crvena LED za signalizaciju spustanja rampe
         client.publish("USprojekat/ZelenoSvjetlo", "0");
