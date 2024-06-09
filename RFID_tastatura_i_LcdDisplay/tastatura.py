@@ -84,7 +84,6 @@ class Tastatura:
         # Ukoliko je unos ispravan, cifra se dodaje na string, koji se ispisuje na displej
         if not self.pogresanUnos:
             self.string += self.matrica[self.currentRow][self.currentCol]
-            print(self.string)
             self.lcd.clear()
             self.lcd.putstr(self.string)
    
