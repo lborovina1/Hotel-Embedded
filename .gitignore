@@ -1,2 +1,5 @@
+# Visual Studio Code files
 .vscode/
+
+# Micropico extension for VS Code project file
 .micropico
