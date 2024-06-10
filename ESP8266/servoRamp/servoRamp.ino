@@ -12,7 +12,7 @@ EspMQTTClient client(
   "123A456d78",         // WiFi Password
   "broker.hivemq.com",  // MQTT Broker server ip
   "TestClient",         // Klijentsko ime, identifikator uredjaja 
-  1883                  // MQTT port, default-no 1883
+  1883                  // MQTT port, default-ni 1883
 );
 
 // Ova funkcija se poziva kada je konekcija uspostavljena (Wifi i MQTT)
@@ -89,7 +89,7 @@ void setup() {
   client.enableLastWillMessage("USprojekat/Konekcija", "Device Offline", true);  
   client.enableMQTTPersistence();
 
-  servo.attach(SERVO);            // Povezivanje motora sa mikrokontrolerom preko pin-a SERVO
+  servo.attach(SERVO);            // Povezivanje motora sa mikrokontrolerom preko macro-a SERVO
   servo.write(0);                 // Postavljanje inicijalne pozicije rampe
   pinMode(LED_RED, OUTPUT);       // Inicijalizacija crvene LED 
   pinMode(LED_GREEN, OUTPUT);     // Inicijalizacija zelene LED
